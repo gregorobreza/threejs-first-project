@@ -48,13 +48,23 @@ function init() {
   renderer.render(scene, camera);
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+  // const material = [
+  //   new THREE.MeshBasicMaterial({ color: 0xff0000 }), // Red color for the front side
+  //   new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Green color for the back side
+  //   new THREE.MeshBasicMaterial({ color: 0x0000ff }), // Blue color for the top side
+  //   new THREE.MeshBasicMaterial({ color: 0xffff00 }), // Yellow color for the bottom side
+  //   new THREE.MeshBasicMaterial({ color: 0xff00ff }), // Magenta color for the right side
+  //   new THREE.MeshBasicMaterial({ color: 0x00ffff })  // Cyan color for the left side
+  // ];
+
   const material = new THREE.MeshNormalMaterial();
 
   for (let i = 0; i < 200; i++) {
     const object = new THREE.Mesh(boxGeometry, material);
-    object.position.x = Math.random() * (280 - 80);
-    object.position.y = Math.random() * 280 - 80;
-    object.position.z = Math.random() * 200 - 80;
+    object.position.x = Math.random() * (280 - 140);
+    object.position.y = Math.random() * (280 - 140);
+    object.position.z = Math.random() * (200 - 100);
     object.rotation.x = Math.random() * 2 * Math.PI;
     object.rotation.y = Math.random() * 2 * Math.PI;
     object.rotation.z = Math.random() * 2 * Math.PI;
@@ -62,11 +72,9 @@ function init() {
     boxes.push(object);
   }
 
-  const spehereGeometry = new THREE.SphereGeometry(15, 32, 16);
-  // const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-  const sphere = new THREE.Mesh(spehereGeometry, material);
+  const sphereGeometry = new THREE.SphereGeometry(15, 32, 16);
+  const sphere = new THREE.Mesh(sphereGeometry, material);
 
-  
   scene.add(sphere);
 
   document.addEventListener("mousemove", onMouseMove, false);
@@ -158,8 +166,9 @@ function animate() {
 
     box.position.x = 30 * Math.cos(timer * 0.03 + i);
     box.position.y = 30 * Math.sin(timer * 0.05 + i * 1.1);
+
     box.rotation.x = 30 * Math.cos(timer * 0.05 + i);
-    box.rotation.y = 30 * Math.sin(timer * 0.05 + i);
+    box.rotation.y = 30 * 1.2 * Math.sin(timer * 0.05 + i);
     box.rotation.z = 30 * Math.cos(timer * 0.05 + i);
   }
 

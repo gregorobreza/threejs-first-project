@@ -3,11 +3,15 @@ import "./style.css";
 import * as THREE from "three";
 import { getRandomArbitrary } from "./utils/utils";
 
+import { TrackballControls } from "three/addons/controls/TrackballControls.js";
+import Stats from "three/addons/libs/stats.module.js";
 // import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let camera: THREE.PerspectiveCamera,
   scene: THREE.Scene,
-  renderer: THREE.WebGLRenderer;
+  renderer: THREE.WebGLRenderer,
+  controls: TrackballControls,
+  stats: Stats;
 
 const mouse = new THREE.Vector2();
 const target = new THREE.Vector2();
@@ -16,7 +20,8 @@ const windowHalf = new THREE.Vector2(
   window.innerHeight / 2
 );
 const boxes: THREE.Mesh<THREE.BoxGeometry, THREE.MeshNormalMaterial>[] = [];
-const spheres: THREE.Mesh<THREE.BoxGeometry, THREE.MeshNormalMaterial>[] = [];
+const spheres: THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>[] =
+  [];
 
 const xMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
 const yMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
@@ -35,58 +40,73 @@ function init() {
     500
   );
 
+  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const sphereGeometry = new THREE.SphereGeometry(10);
+
+  const material = new THREE.MeshNormalMaterial();
+
+  for (let i = 0; i < 140; i++) {
+    const box = new THREE.Mesh(boxGeometry, material);
+    box.position.x = Math.random() * (280 - 140);
+    box.position.y = Math.random() * (280 - 140);
+    box.position.z = Math.random() * (200 - 100);
+    box.rotation.x = Math.random() * 2 * Math.PI;
+    box.rotation.y = Math.random() * 2 * Math.PI;
+    box.rotation.z = Math.random() * 2 * Math.PI;
+    // box.updateMatrix();
+    // box.matrixAutoUpdate = false;
+    scene.add(box);
+    boxes.push(box);
+
+
+  }
+
+  const sphere = new THREE.Mesh(sphereGeometry, material);
+  sphere.position.x =  Math.random() * (70-35);
+  sphere.position.y = 0;
+  sphere.position.z = 0 ;
+  // sphere.rotation.x = Math.random() * 2 * Math.PI;
+  // sphere.rotation.y = Math.random() * 2 * Math.PI;
+  // sphere.rotation.z = Math.random() * 2 * Math.PI;
+  scene.add(sphere);
+  spheres.push(sphere);
+
+  // for (let i = 0; i < 150; i++) {
+  //   const sphere = new THREE.Mesh(sphereGeometry, material);
+  //   sphere.position.x = Math.random() * (280 - 140);
+  //   sphere.position.y = Math.random() * (280 - 140);
+  //   sphere.position.z = Math.random() * (200 - 100);
+  //   sphere.rotation.x = Math.random() * 2 * Math.PI;
+  //   sphere.rotation.y = Math.random() * 2 * Math.PI;
+  //   sphere.rotation.z = Math.random() * 2 * Math.PI;
+  //   scene.add(sphere);
+  //   spheres.push(sphere);
+  // }
+
+  // const sphere = new THREE.Mesh(sphereGeometry, material);
+
+  // scene.add(sphere);
+
   renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector("#bg") || undefined,
     antialias: true,
   });
-  // renderer.autoClear = false;
   renderer.setClearColor(0x000000, 0.0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.position.setZ(100);
 
-  renderer.render(scene, camera);
+  // document.body.appendChild(renderer.domElement);
+  // renderer.render(scene, camera);
 
-  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
 
-  // const material = [
-  //   new THREE.MeshBasicMaterial({ color: 0xff0000 }), // Red color for the front side
-  //   new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // Green color for the back side
-  //   new THREE.MeshBasicMaterial({ color: 0x0000ff }), // Blue color for the top side
-  //   new THREE.MeshBasicMaterial({ color: 0xffff00 }), // Yellow color for the bottom side
-  //   new THREE.MeshBasicMaterial({ color: 0xff00ff }), // Magenta color for the right side
-  //   new THREE.MeshBasicMaterial({ color: 0x00ffff })  // Cyan color for the left side
-  // ];
-
-  const material = new THREE.MeshNormalMaterial();
-
-  for (let i = 0; i < 200; i++) {
-    const object = new THREE.Mesh(boxGeometry, material);
-    object.position.x = Math.random() * (280 - 140);
-    object.position.y = Math.random() * (280 - 140);
-    object.position.z = Math.random() * (200 - 100);
-    object.rotation.x = Math.random() * 2 * Math.PI;
-    object.rotation.y = Math.random() * 2 * Math.PI;
-    object.rotation.z = Math.random() * 2 * Math.PI;
-    scene.add(object);
-    boxes.push(object);
-  }
-
-  const sphereGeometry = new THREE.SphereGeometry(15, 32, 16);
-  const sphere = new THREE.Mesh(sphereGeometry, material);
-
-  scene.add(sphere);
+  window.addEventListener("resize", onWindowResize);
 
   document.addEventListener("mousemove", onMouseMove, false);
+
   document.addEventListener("wheel", onMouseWheel, false);
-  window.addEventListener("resize", onResize, false);
-
-  // document.addEventListener('mousewheel', onMouseWheelSmooth, false);
-  // document.addEventListener('DOMMouseScroll', onMouseWheelSmooth, false);
-
-  // document.addEventListener( 'mousemove', onMouseMove, false );
-  //   document.addEventListener( 'wheel', onMouseWheel, false );
-  // 	window.addEventListener( 'resize', onResize, false );
 }
 
 // const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
@@ -126,13 +146,13 @@ function init() {
 // const spaceColor = new THREE.Color("skyblue");
 // scene.background = spaceColor;
 
-function onMouseMove(event: MouseEvent) {
+function onMouseMove(event: any) {
   mouse.x = event.clientX - windowHalf.x;
   mouse.y = event.clientY - windowHalf.x;
 }
 
 function onMouseWheel(event: WheelEvent) {
-  camera.position.z += event.deltaY * 0.01; // move camera along z-axis
+  camera.position.z += event.deltaY * 0.05; // move camera along z-axis
 }
 
 // function onMouseWheelSmooth(event: any) {
@@ -158,6 +178,29 @@ function onResize() {
   renderer.setSize(width, height);
 }
 
+// function createControls(camera: THREE.PerspectiveCamera) {
+//   controls = new TrackballControls(camera, renderer.domElement);
+
+//   controls.rotateSpeed = 0.5;
+//   // controls.noRotate = true
+//   controls.noPan = true
+//   controls.zoomSpeed = 1.0;
+//   // controls.panSpeed = 0.8;
+
+//   controls.keys = ["KeyA", "KeyS", "KeyD"];
+// }
+
+function onWindowResize() {
+  const aspect = window.innerWidth / window.innerHeight;
+
+  camera.aspect = aspect;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  controls.handleResize();
+}
+
 function animate() {
   const timer = 0.0001 * Date.now();
 
@@ -179,6 +222,8 @@ function animate() {
   camera.rotation.y += 0.05 * (target.x - camera.rotation.y);
 
   requestAnimationFrame(animate);
+
+  stats.update();
 
   renderer.render(scene, camera);
 }

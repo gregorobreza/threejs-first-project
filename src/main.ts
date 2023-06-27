@@ -11,7 +11,10 @@ let camera: THREE.PerspectiveCamera,
   scene: THREE.Scene,
   renderer: THREE.WebGLRenderer,
   controls: TrackballControls,
-  stats: Stats;
+  stats: Stats,
+  circle: THREE.Object3D<THREE.Event>,
+  skelet: THREE.Object3D<THREE.Event>,
+  particle: THREE.Object3D<THREE.Event>;
 
 const mouse = new THREE.Vector2();
 const target = new THREE.Vector2();
@@ -40,52 +43,109 @@ function init() {
     500
   );
 
+  circle = new THREE.Object3D();
+  skelet = new THREE.Object3D();
+  particle = new THREE.Object3D();
+
+  // scene.add(circle);
+  // scene.add(skelet);
+  scene.add(particle);
+
+  const geometry = new THREE.TetrahedronGeometry(2, 0);
+  const geom = new THREE.IcosahedronGeometry(7, 1);
+  const geom2 = new THREE.IcosahedronGeometry(15, 1);
+
+  const material2 = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    // shading: THREE.FlatShading,
+    flatShading: true,
+  });
+
+  for (let i = 0; i < 500; i++) {
+    const mesh = new THREE.Mesh(geometry, material2);
+    mesh.position
+      .set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
+      .normalize();
+    mesh.position.multiplyScalar(90 + Math.random() * 200);
+    mesh.rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
+    particle.add(mesh);
+  }
+
+  const mat = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    flatShading: true,
+  });
+
+  const mat2 = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    wireframe: true,
+    side: THREE.DoubleSide,
+  });
+
+  const planet = new THREE.Mesh(geom, mat);
+  planet.scale.x = planet.scale.y = planet.scale.z = 8;
+  // planet.translateX(150)
+  circle.add(planet);
+
+  const planet2 = new THREE.Mesh(geom2, mat2);
+  planet2.scale.x = planet2.scale.y = planet2.scale.z = 5;
+  // planet2.translateX(150)
+  skelet.add(planet2);
+
+  const group = new THREE.Group();
+  group.add(circle);
+  group.add(skelet);
+  group.translateX(100)
+
+  scene.add(group);
+
+  const ambientLight = new THREE.AmbientLight(0x999999);
+  scene.add(ambientLight);
+
+  const lights = [];
+  lights[0] = new THREE.DirectionalLight(0xffffff, 1);
+  lights[0].position.set(1, 0, 0);
+  lights[1] = new THREE.DirectionalLight(0x11e8bb, 1);
+  lights[1].position.set(0.75, 1, 0.5);
+  lights[2] = new THREE.DirectionalLight(0x8200c9, 1);
+  lights[2].position.set(-0.75, -1, 0.5);
+  scene.add(lights[0]);
+  scene.add(lights[1]);
+  scene.add(lights[2]);
+
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
   const sphereGeometry = new THREE.SphereGeometry(10);
 
   const material = new THREE.MeshNormalMaterial();
 
-  for (let i = 0; i < 140; i++) {
+  for (let i = 0; i < 500; i++) {
     const box = new THREE.Mesh(boxGeometry, material);
-    box.position.x = Math.random() * (280 - 140);
-    box.position.y = Math.random() * (280 - 140);
-    box.position.z = Math.random() * (200 - 100);
-    box.rotation.x = Math.random() * 2 * Math.PI;
-    box.rotation.y = Math.random() * 2 * Math.PI;
-    box.rotation.z = Math.random() * 2 * Math.PI;
+    // box.position.x = Math.random() * (280 - 140);
+    // box.position.y = Math.random() * (280 - 140);
+    // box.position.z = Math.random() * (200 - 100);
+    // box.rotation.x = Math.random() * 2 * Math.PI;
+    // box.rotation.y = Math.random() * 2 * Math.PI;
+    // box.rotation.z = Math.random() * 2 * Math.PI;
+    box.position
+      .set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
+      .normalize();
+    box.position.multiplyScalar(90 + Math.random() * 700);
+    box.rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
     // box.updateMatrix();
     // box.matrixAutoUpdate = false;
     scene.add(box);
     boxes.push(box);
-
-
   }
 
   const sphere = new THREE.Mesh(sphereGeometry, material);
-  sphere.position.x =  Math.random() * (70-35);
+  sphere.position.x = Math.random() * (70 - 35);
   sphere.position.y = 0;
-  sphere.position.z = 0 ;
+  sphere.position.z = 0;
   // sphere.rotation.x = Math.random() * 2 * Math.PI;
   // sphere.rotation.y = Math.random() * 2 * Math.PI;
   // sphere.rotation.z = Math.random() * 2 * Math.PI;
   scene.add(sphere);
   spheres.push(sphere);
-
-  // for (let i = 0; i < 150; i++) {
-  //   const sphere = new THREE.Mesh(sphereGeometry, material);
-  //   sphere.position.x = Math.random() * (280 - 140);
-  //   sphere.position.y = Math.random() * (280 - 140);
-  //   sphere.position.z = Math.random() * (200 - 100);
-  //   sphere.rotation.x = Math.random() * 2 * Math.PI;
-  //   sphere.rotation.y = Math.random() * 2 * Math.PI;
-  //   sphere.rotation.z = Math.random() * 2 * Math.PI;
-  //   scene.add(sphere);
-  //   spheres.push(sphere);
-  // }
-
-  // const sphere = new THREE.Mesh(sphereGeometry, material);
-
-  // scene.add(sphere);
 
   renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector("#bg") || undefined,
@@ -94,10 +154,7 @@ function init() {
   renderer.setClearColor(0x000000, 0.0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.position.setZ(100);
-
-  // document.body.appendChild(renderer.domElement);
-  // renderer.render(scene, camera);
+  camera.position.setZ(500);
 
   stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -108,43 +165,6 @@ function init() {
 
   document.addEventListener("wheel", onMouseWheel, false);
 }
-
-// const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-// const material = new THREE.MeshStandardMaterial({
-//   color: 0xff6347,
-// });
-// const torus = new THREE.Mesh(geometry, material);
-
-// scene.add(torus);
-
-// const pointLight = new THREE.PointLight(0xffffff);
-// pointLight.position.set(5, 5, 5);
-
-// const lightHelper = new THREE.PointLightHelper(pointLight);
-// const gridHelper = new THREE.GridHelper(200, 50);
-// scene.add(gridHelper);
-// scene.add(lightHelper, gridHelper);
-
-// const controls = new OrbitControls(camera, renderer.domElement);
-
-// const starGeometry = new THREE.SphereGeometry(0.25, 24, 24);
-// const starMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-
-// function addStar() {
-//   const star = new THREE.Mesh(starGeometry, starMaterial);
-
-//   const [x, y, z] = Array(3)
-//     .fill(0)
-//     .map(() => THREE.MathUtils.randFloatSpread(100));
-
-//   star.position.set(x, y, z);
-//   scene.add(star);
-// }
-
-// Array(200).fill(0).forEach(addStar);
-
-// const spaceColor = new THREE.Color("skyblue");
-// scene.background = spaceColor;
 
 function onMouseMove(event: any) {
   mouse.x = event.clientX - windowHalf.x;
@@ -202,6 +222,8 @@ function onWindowResize() {
 }
 
 function animate() {
+  requestAnimationFrame(animate);
+
   const timer = 0.0001 * Date.now();
 
   for (let i = 0, il = boxes.length; i < il; i++) {
@@ -221,7 +243,12 @@ function animate() {
   camera.rotation.x += 0.05 * (target.y - camera.rotation.x);
   camera.rotation.y += 0.05 * (target.x - camera.rotation.y);
 
-  requestAnimationFrame(animate);
+
+  circle.rotation.x -= 0.002;
+  circle.rotation.y -= 0.003;
+  skelet.rotation.x -= 0.001;
+  skelet.rotation.y += 0.005;
+  renderer.clear();
 
   stats.update();
 

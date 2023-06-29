@@ -5,6 +5,7 @@ import { getRandomArbitrary } from "./utils/utils";
 
 import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 import Stats from "three/addons/libs/stats.module.js";
+import { createNoise3D } from "simplex-noise";
 // import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let camera: THREE.PerspectiveCamera,
@@ -14,7 +15,7 @@ let camera: THREE.PerspectiveCamera,
   stats: Stats,
   circle: THREE.Object3D<THREE.Event>,
   skelet: THREE.Object3D<THREE.Event>,
-  blob : THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>
+  blob: THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>;
 
 const mouse = new THREE.Vector2();
 const target = new THREE.Vector2();
@@ -29,6 +30,9 @@ const spheres: THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>[] =
 const xMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
 const yMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
 const zMovementConstant = parseFloat(getRandomArbitrary(0.001, 0.1).toFixed(2));
+
+const noise3D = createNoise3D();
+
 
 init();
 animate();
@@ -84,9 +88,10 @@ function init() {
 
   blob = new THREE.Mesh(blob_geometry, material);
   blob.scale.x = blob.scale.y = blob.scale.z = 7;
-  blob.position.x = (-100);
-  blob.position.z = -500
+  blob.position.x = -100;
+  blob.position.z = -500;
   scene.add(blob);
+
 
   const ambientLight = new THREE.AmbientLight(0x999999);
   scene.add(ambientLight);
@@ -152,24 +157,27 @@ function onWindowResize() {
   controls.handleResize();
 }
 
-function blobAnimation(){
-// change '0.003' for more aggressive animation
-const time = performance.now() * 0.001;
-//console.log(time)
+function blobAnimation() {
+  // change '0.003' for more aggressive animation
+  const time = performance.now() * 0.001;
+  //console.log(time)
 
-//go through vertices here and reposition them
+  //go through vertices here and reposition them
 
-// change 'k' value for more spikes
-const k = 1;
-for (let i = 0; i < blob.geometry.vertices.length; i++) {
-    let p = blob.geometry.vertices[i];
-    p.normalize().multiplyScalar(1 + 0.2 * noise.perlin3(p.x * k + time, p.y * k, p.z * k));
-}
-blob.geometry.computeVertexNormals();
-blob.geometry.normalsNeedUpdate = true;
-blob.geometry.verticesNeedUpdate = true;
-
-
+  // change 'k' value for more spikes
+  const k = 1;
+  const position = blob.geometry.attributes.position;
+  const vector = new THREE.Vector3();
+  for (let i = 0; i < position.count; i++) {
+    let p = vector.fromBufferAttribute(position, i);
+    // let p = blob.geometry.vertices[i];
+    p.normalize().multiplyScalar(
+      1 + 0.2 * noise3D(p.x * k + time, p.y * k, p.z * k)
+    );
+  }
+  // blob.geometry.computeVertexNormals();
+  blob.geometry.attributes.position.needsUpdate = true;
+  blob.geometry.attributes.normal.needsUpdate = true;
 }
 
 function animate() {
@@ -185,6 +193,8 @@ function animate() {
   circle.rotation.y -= 0.003;
   skelet.rotation.x -= 0.001;
   skelet.rotation.y += 0.005;
+
+  blobAnimation()
   renderer.clear();
 
   stats.update();

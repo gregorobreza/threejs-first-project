@@ -34,7 +34,7 @@ const zMovementConstant = parseFloat(getRandomArbitrary(0.001, 0.1).toFixed(2));
 const noise3D = createNoise3D();
 
 
-init();
+init()
 animate();
 
 function init() {
@@ -87,7 +87,7 @@ function init() {
   const material = new THREE.MeshNormalMaterial();
 
   blob = new THREE.Mesh(blob_geometry, material);
-  blob.scale.x = blob.scale.y = blob.scale.z = 7;
+  blob.scale.x = blob.scale.y = blob.scale.z = 60;
   blob.position.x = -100;
   blob.position.z = -500;
   scene.add(blob);
@@ -159,29 +159,29 @@ function onWindowResize() {
 
 function blobAnimation() {
   // change '0.003' for more aggressive animation
-  const time = performance.now() * 0.001;
+  const time = performance.now() * 0.002;
   //console.log(time)
 
   //go through vertices here and reposition them
 
   // change 'k' value for more spikes
-  const k = 1;
-  const position = blob.geometry.attributes.position;
-  const vector = new THREE.Vector3();
-  for (let i = 0; i < position.count; i++) {
-    let p = vector.fromBufferAttribute(position, i);
-    // let p = blob.geometry.vertices[i];
+  const k = 1.5;
+  const positionAttribute = blob.geometry.getAttribute('position');
+  const vertex = new THREE.Vector3();
+  for (let i = 0; i < positionAttribute.count; i++) {
+    vertex.fromBufferAttribute(positionAttribute, i);
+    let p = vertex
     p.normalize().multiplyScalar(
-      1 + 0.2 * noise3D(p.x * k + time, p.y * k, p.z * k)
+      1 + 0.09 * noise3D(p.x * k + time, p.y * k, p.z * k)
     );
+    positionAttribute.setXYZ(i, p.x, p.y, p.z);
   }
-  // blob.geometry.computeVertexNormals();
+  blob.geometry.computeVertexNormals();
   blob.geometry.attributes.position.needsUpdate = true;
   blob.geometry.attributes.normal.needsUpdate = true;
 }
 
 function animate() {
-  requestAnimationFrame(animate);
 
   target.x = (1 - mouse.x) * 0.0002;
   target.y = (1 - mouse.y) * 0.0002;
@@ -194,10 +194,12 @@ function animate() {
   skelet.rotation.x -= 0.001;
   skelet.rotation.y += 0.005;
 
-  blobAnimation()
   renderer.clear();
 
   stats.update();
+  blobAnimation()
 
   renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+
 }

@@ -1,4 +1,4 @@
-import "./style.css";
+import "./index.css";
 
 import * as THREE from "three";
 import { getRandomArbitrary } from "./utils/utils";
@@ -6,6 +6,7 @@ import { getRandomArbitrary } from "./utils/utils";
 import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 import Stats from "three/addons/libs/stats.module.js";
 import { createNoise3D } from "simplex-noise";
+import gsap from "gsap";
 // import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let camera: THREE.PerspectiveCamera,
@@ -27,14 +28,11 @@ const boxes: THREE.Mesh<THREE.BoxGeometry, THREE.MeshNormalMaterial>[] = [];
 const spheres: THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>[] =
   [];
 
-const xMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
-const yMovementConstant = getRandomArbitrary(0.001, 0.1).toFixed(2);
-const zMovementConstant = parseFloat(getRandomArbitrary(0.001, 0.1).toFixed(2));
+const about = document.getElementById("about");
 
 const noise3D = createNoise3D();
 
-
-init()
+init();
 animate();
 
 function init() {
@@ -92,7 +90,6 @@ function init() {
   blob.position.z = -500;
   scene.add(blob);
 
-
   const ambientLight = new THREE.AmbientLight(0x999999);
   scene.add(ambientLight);
 
@@ -114,7 +111,7 @@ function init() {
   renderer.setClearColor(0x000000, 0.0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.position.setZ(280);
+  camera.position.z = 280
 
   stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -124,6 +121,9 @@ function init() {
   document.addEventListener("mousemove", onMouseMove, false);
 
   document.addEventListener("wheel", onMouseWheel, false);
+
+  about?.addEventListener("click", onAboutClick, false);
+  // document.addEventListener('click', onAboutClick, false);
 }
 
 function onMouseMove(event: any) {
@@ -133,6 +133,19 @@ function onMouseMove(event: any) {
 
 function onMouseWheel(event: WheelEvent) {
   camera.position.z += event.deltaY * 0.05; // move camera along z-axis
+}
+
+function onAboutClick(event: MouseEvent) {
+  console.log("here");
+
+    const destinationZ = camera.position.z - 300; // Adjust the distance as needed
+    gsap.to(camera.position, {
+      duration: 1, // Set the duration of the animation (in seconds)
+      z: destinationZ, // Set the destination position
+      ease: "Power2.easeInOut", // Set the easing function
+    });
+  console.log("there", camera.position.z);
+
 }
 
 function onResize() {
@@ -154,7 +167,7 @@ function onWindowResize() {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  controls.handleResize();
+  // controls.handleResize();
 }
 
 function blobAnimation() {
@@ -166,11 +179,11 @@ function blobAnimation() {
 
   // change 'k' value for more spikes
   const k = 1.5;
-  const positionAttribute = blob.geometry.getAttribute('position');
+  const positionAttribute = blob.geometry.getAttribute("position");
   const vertex = new THREE.Vector3();
   for (let i = 0; i < positionAttribute.count; i++) {
     vertex.fromBufferAttribute(positionAttribute, i);
-    let p = vertex
+    let p = vertex;
     p.normalize().multiplyScalar(
       1 + 0.09 * noise3D(p.x * k + time, p.y * k, p.z * k)
     );
@@ -182,7 +195,6 @@ function blobAnimation() {
 }
 
 function animate() {
-
   target.x = (1 - mouse.x) * 0.0002;
   target.y = (1 - mouse.y) * 0.0002;
 
@@ -197,9 +209,8 @@ function animate() {
   renderer.clear();
 
   stats.update();
-  blobAnimation()
+  blobAnimation();
 
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
-
 }

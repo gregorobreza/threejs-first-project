@@ -1,7 +1,7 @@
 import "./index.css";
 
 import * as THREE from "three";
-import { getRandomArbitrary } from "./utils/utils";
+import { animateToPosition, getRandomArbitrary } from "./utils/utils";
 
 import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 import Stats from "three/addons/libs/stats.module.js";
@@ -29,6 +29,9 @@ const spheres: THREE.Mesh<THREE.SphereGeometry, THREE.MeshNormalMaterial>[] =
   [];
 
 const about = document.getElementById("about");
+const projects = document.getElementById("projects");
+const skills = document.getElementById("skills");
+const contact = document.getElementById("contact");
 
 const noise3D = createNoise3D();
 
@@ -75,7 +78,7 @@ function init() {
   const group = new THREE.Group();
   group.add(circle);
   group.add(skelet);
-  group.position.z = 0;
+  group.position.z = -270;
   group.translateX(100);
 
   scene.add(group);
@@ -87,7 +90,8 @@ function init() {
   blob = new THREE.Mesh(blob_geometry, material);
   blob.scale.x = blob.scale.y = blob.scale.z = 60;
   blob.position.x = -100;
-  blob.position.z = -500;
+  blob.position.z = -800;
+  blob.position.y = 200;
   scene.add(blob);
 
   const ambientLight = new THREE.AmbientLight(0x999999);
@@ -111,7 +115,7 @@ function init() {
   renderer.setClearColor(0x000000, 0.0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.position.z = 280
+  camera.position.z = 0;
 
   stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -123,12 +127,15 @@ function init() {
   document.addEventListener("wheel", onMouseWheel, false);
 
   about?.addEventListener("click", onAboutClick, false);
+
+  projects?.addEventListener("click", onProjectsClick, false);
   // document.addEventListener('click', onAboutClick, false);
 }
 
 function onMouseMove(event: any) {
   mouse.x = event.clientX - windowHalf.x;
   mouse.y = event.clientY - windowHalf.x;
+
 }
 
 function onMouseWheel(event: WheelEvent) {
@@ -136,16 +143,10 @@ function onMouseWheel(event: WheelEvent) {
 }
 
 function onAboutClick(event: MouseEvent) {
-  console.log("here");
-
-    const destinationZ = camera.position.z - 300; // Adjust the distance as needed
-    gsap.to(camera.position, {
-      duration: 1, // Set the duration of the animation (in seconds)
-      z: destinationZ, // Set the destination position
-      ease: "Power2.easeInOut", // Set the easing function
-    });
-  console.log("there", camera.position.z);
-
+  animateToPosition(event, { x: 0, y: 0, z: 0 }, camera);
+}
+function onProjectsClick(event: MouseEvent) {
+  animateToPosition(event, { x: 200, y: 100, z: -600 }, camera);
 }
 
 function onResize() {
@@ -198,8 +199,8 @@ function animate() {
   target.x = (1 - mouse.x) * 0.0002;
   target.y = (1 - mouse.y) * 0.0002;
 
-  camera.rotation.x += 0.03 * (target.y - camera.rotation.x);
-  camera.rotation.y += 0.03 * (target.x - camera.rotation.y);
+  // camera.rotation.x += 0.03 * (target.y - camera.rotation.x);
+  // camera.rotation.y += 0.03 * (target.x - camera.rotation.y);
 
   circle.rotation.x -= 0.002;
   circle.rotation.y -= 0.003;

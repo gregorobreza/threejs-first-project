@@ -92,7 +92,11 @@ function init() {
   blob.position.x = -100;
   blob.position.z = -800;
   blob.position.y = 200;
+  // blob.rotation.y = Math.PI*90/180;
   scene.add(blob);
+
+  const axesHelper = new THREE.AxesHelper(5);
+  scene.add(axesHelper);
 
   const ambientLight = new THREE.AmbientLight(0x999999);
   scene.add(ambientLight);
@@ -122,7 +126,7 @@ function init() {
 
   window.addEventListener("resize", onWindowResize);
 
-  document.addEventListener("mousemove", onMouseMove, false);
+  // document.addEventListener("mousemove", onMouseMove, false);
 
   document.addEventListener("wheel", onMouseWheel, false);
 
@@ -132,21 +136,21 @@ function init() {
   // document.addEventListener('click', onAboutClick, false);
 }
 
-function onMouseMove(event: any) {
-  mouse.x = event.clientX - windowHalf.x;
-  mouse.y = event.clientY - windowHalf.x;
+// function onMouseMove(event: any) {
+//   mouse.x = event.clientX - windowHalf.x;
+//   mouse.y = event.clientY - windowHalf.x;
 
-}
+// }
 
 function onMouseWheel(event: WheelEvent) {
   camera.position.z += event.deltaY * 0.05; // move camera along z-axis
 }
 
 function onAboutClick(event: MouseEvent) {
-  animateToPosition(event, { x: 0, y: 0, z: 0 }, camera);
+  animateToPosition(event, { x: 0, y: 0, z: 0 }, {x: 0, y: 0, z:0},camera);
 }
 function onProjectsClick(event: MouseEvent) {
-  animateToPosition(event, { x: 200, y: 100, z: -600 }, camera);
+  animateToPosition(event, { x: -100, y: 200, z: -500 }, {x: 0, y: -90, z:0},  camera);
 }
 
 function onResize() {

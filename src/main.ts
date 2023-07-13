@@ -71,14 +71,15 @@ function init() {
   circle.add(planet);
 
   const planet2 = new THREE.Mesh(geom2, mat2);
-  planet2.scale.x = planet2.scale.y = planet2.scale.z = 7;
+  planet2.scale.x = planet2.scale.y = planet2.scale.z = 6;
   // planet2.translateX(150)
   skelet.add(planet2);
 
   const group = new THREE.Group();
   group.add(circle);
   group.add(skelet);
-  group.position.z = -270;
+  group.position.z = -300;
+group.position.y = -20
   group.translateX(100);
 
   scene.add(group);
@@ -88,10 +89,10 @@ function init() {
   const material = new THREE.MeshNormalMaterial();
 
   blob = new THREE.Mesh(blob_geometry, material);
-  blob.scale.x = blob.scale.y = blob.scale.z = 60;
-  blob.position.x = -100;
-  blob.position.z = -800;
-  blob.position.y = 200;
+  blob.scale.x = blob.scale.y = blob.scale.z = 45;
+  blob.position.x = 800;
+  blob.position.z = -780;
+  blob.position.y = 350;
   // blob.rotation.y = Math.PI*90/180;
   scene.add(blob);
 
@@ -150,7 +151,7 @@ function onAboutClick(event: MouseEvent) {
   animateToPosition(event, { x: 0, y: 0, z: 0 }, {x: 0, y: 0, z:0},camera);
 }
 function onProjectsClick(event: MouseEvent) {
-  animateToPosition(event, { x: -100, y: 200, z: -500 }, {x: 0, y: -90, z:0},  camera);
+  animateToPosition(event, { x: 600, y: 350, z: -700 }, {x: 0, y: -90, z:0},  camera);
 }
 
 function onResize() {

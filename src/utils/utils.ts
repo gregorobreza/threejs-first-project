@@ -26,7 +26,7 @@ export function animateToPosition(
 ) {
   const cameraAnimation = gsap.timeline()
   cameraAnimation.to(camera.position, {
-    duration: 1, // Set the duration of the animation (in seconds)
+    duration: 2, // Set the duration of the animation (in seconds)
     z: position.z,
     y: position.y,
     x: position.x,
@@ -37,6 +37,6 @@ export function animateToPosition(
     y:  (Math.PI * rotation.y)/180,
     z:  (Math.PI * rotation.z)/180,
     ease: "Power2.easeInOut", // Set the easing function
-  })
+  }, "-=1")
   // camera.updateProjectionMatrix()
 }
